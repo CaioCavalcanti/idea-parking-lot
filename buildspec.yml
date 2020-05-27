@@ -3,7 +3,7 @@ version: 2
 env: 
   variables: 
     REGION: ""
-    ECR_NAME: ""
+    IMAGE_NAME: ""
     ECR_URL: ""
     TAG: "latest"
  
@@ -18,19 +18,18 @@ phases:
     commands: 
     - echo Logging in to Amazon ECR.... 
     - aws --version
-    # update the following line with your own region
-    - $(aws ecr get-login --no-include-email --region ${REGION}) 
+    - aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_URL}
   build: 
     commands: 
     - echo Build started on `date` 
     - echo Building the Docker image... 
     # update the following line with the name of your own ECR repository
-    - docker build -t ${ECR_NAME} . 
+    - docker build -t ${IMAGE_NAME} . 
     # update the following line with the URI of your own ECR repository (view the Push Commands in the console)
-    - docker tag ${ECR_NAME}:${TAG} ${ECR_URL}/${ECR_NAME}:${TAG} 
+    - docker tag ${IMAGE_NAME}:${TAG} ${ECR_URL}/${IMAGE_NAME}:${TAG} 
   post_build: 
     commands: 
     - echo Build completed on `date` 
     - echo pushing to repo
     # update the following line with the URI of your own ECR repository
-    - docker push ${ECR_URL}/${ECR_NAME}:${TAG}
+    - docker push ${ECR_URL}/${IMAGE_NAME}:${TAG}
